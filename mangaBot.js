@@ -1,36 +1,40 @@
+const fs = require('fs');
+const path = require('path');
 const playwright = require('playwright-extra');
 
 (async () => {
   const browser = await playwright.chromium.launch({
-    headless: false, 
+    headless: false,
     args: ['--proxy-bypass-list=*', '--no-sandbox']
   });
 
-  const page = await browser.newPage();
+ //quayviudeo
+  const context = await browser.newContext({
+    recordVideo: {
+      dir: './videos',            
+      size: { width: 1280, height: 720 }
+    }
+  });
+
+  const page = await context.newPage();
 
   try {
-    // Mở trang
     await page.goto('https://truyenqqgo.com/', { waitUntil: 'domcontentloaded' });
     console.log('✅ Đã vào trang truyện.');
 
-    // Chờ truyện đầu tiên và click
     await page.waitForSelector('.book_avatar', { timeout: 30000 });
     const stories = await page.$$('.book_avatar');
-    if (stories.length === 0) {
-      throw new Error('❌ Không tìm thấy truyện.');
-    }
+    if (stories.length === 0) throw new Error('❌ Không tìm thấy truyện.');
     await stories[0].click();
     console.log('✅ Đã click truyện đầu tiên.');
 
-    // Chờ và click nút Chap đầu
     await page.waitForSelector('.fa.fa-book', { timeout: 30000 });
-    await page.waitForTimeout(3000); 
+    await page.waitForTimeout(3000);
     await page.click('.fa.fa-book');
     console.log('✅ Đã click nút Chap đầu.');
 
-    // Kéo xuống để xem truyện
-    const scrollStep = 300;
-    const scrollDelay = 800;
+    const scrollStep = 600;
+    const scrollDelay = 200;
     let lastScrollY = 0;
     let scrollCount = 0;
     const maxScrollCount = 50;
@@ -51,13 +55,17 @@ const playwright = require('playwright-extra');
     }
 
     console.log('✅ Đã cuộn hết trang.');
-
-    // Đợi 5 giây rồi thoát 
-    await page.waitForTimeout(5000);
+      await page.waitForTimeout(5000);
 
   } catch (error) {
     console.error(error.message);
   } finally {
+    
+    const videoPath = await page.video().path();
+    await context.close();
     await browser.close();
+     const newVideoPath = path.join('./videos', `video_${Date.now()}.webm`);
+     fs.renameSync(videoPath, newVideoPath);
+    console.log('Video được lưu ở:', newVideoPath);
   }
 })();
