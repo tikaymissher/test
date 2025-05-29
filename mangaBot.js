@@ -2,7 +2,7 @@ const playwright = require('playwright-extra');
 
 (async () => {
   const browser = await playwright.chromium.launch({
-    headless: false, // Bật giao diện để tránh bị chặn bot
+    headless: false, 
     args: ['--proxy-bypass-list=*', '--no-sandbox']
   });
 
@@ -24,11 +24,11 @@ const playwright = require('playwright-extra');
 
     // Chờ và click nút Chap đầu
     await page.waitForSelector('.fa.fa-book', { timeout: 30000 });
-    await page.waitForTimeout(3000); // Đợi thêm 3 giây
+    await page.waitForTimeout(3000); 
     await page.click('.fa.fa-book');
     console.log('✅ Đã click nút Chap đầu.');
 
-    // Kéo xuống để xem truyện, giới hạn 50 lần cuộn
+    // Kéo xuống để xem truyện
     const scrollStep = 300;
     const scrollDelay = 800;
     let lastScrollY = 0;
@@ -42,7 +42,7 @@ const playwright = require('playwright-extra');
       }, scrollStep);
 
       if (newScrollY === lastScrollY) {
-        console.log('⏹️ Không cuộn thêm được nữa, dừng.');
+        console.log(' Không cuộn thêm được nữa, dừng.');
         break;
       }
       lastScrollY = newScrollY;
@@ -52,7 +52,7 @@ const playwright = require('playwright-extra');
 
     console.log('✅ Đã cuộn hết trang.');
 
-    // Đợi 5 giây rồi thoát (bạn có thể đổi lại 30000 nếu muốn)
+    // Đợi 5 giây rồi thoát 
     await page.waitForTimeout(5000);
 
   } catch (error) {
